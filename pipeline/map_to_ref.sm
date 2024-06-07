@@ -1,0 +1,62 @@
+configfile: "config.yaml"
+
+trf_out = os.environ.get('trf')
+prefix = os.path.splitext(trf_out)[0]
+trf_tsv = prefix + '.trf.tsv'
+flanks_fa = prefix + '.flanks.fa'
+flanks_bam = prefix + '.' + config["ref_name"] + '.flanks.bam'
+final_tsv = prefix + '.' + config["ref_name"] + '.tsv'
+asm_mappings = prefix + '.mappings.tsv'
+sanitized_tsv = prefix + '.' + config["ref_name"] + '.sanitized.tsv'
+sanitized_log = prefix + '.' + config["ref_name"] + '.sanitized.log'
+
+rule all:
+	input:
+		sanitized_tsv
+
+rule screen_trf:
+	input:
+		trf_out
+	output:
+		trf_tsv
+	shell:
+		"python " + config["scripts_dir"] + "/screen_trf_calls.py {input} {output}"
+
+rule extract_flanks:
+	input:
+		trf = trf_tsv,
+		asm = os.environ.get('asm')
+	output:
+		flanks_fa
+	shell:
+		"python " + config["scripts_dir"] + "/extract_trf_flanks.py {input.trf} {input.asm} {output}" 
+
+rule align_flanks:
+	input:
+		flanks = flanks_fa,
+		ref = config["reference"]
+	output:
+		flanks_bam
+	threads: 42
+	shell:
+		"bwa mem -t42 {input.ref} {input.flanks} | samtools view -bhS - -o {output}"
+
+rule map_to_ref:
+	input:
+		bam = flanks_bam,
+		trf = trf_tsv,
+	output:
+		final_tsv
+	shell:
+		"python " + config["scripts_dir"] + "/map_asm_to_ref.py {input.bam} {input.trf} {output}"
+
+rule sanitize_mappings:
+	input:
+		tr = final_tsv,
+		asm = asm_mappings
+	output:
+		tsv = sanitized_tsv,
+		log = sanitized_log
+	shell:
+		"python " + config["scripts_dir"] + "/sanitize_mappings.py {input.tr} {input.asm} {output.tsv} --log {output.log} --label " + os.path.basename(prefix)
+
