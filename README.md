@@ -11,6 +11,7 @@ This repository keeps the analysis scripts that were used to generated the TR ca
 [v1](https://zenodo.org/records/11522276)
 - haplotype names separated by semi-colons are shown in first header line preceded by '#'
 - column descriptions:
+
 | Column | Description |
 | ------ | ----------- |
 | chrom | chromosome |
