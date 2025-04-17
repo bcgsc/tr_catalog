@@ -10,7 +10,7 @@ This repository keeps the analysis scripts that were used to generated the TR ca
 [Mapping of TRs from assemblies to the reference genome](pipeline/USAGE.md)
 
 ## Catalog
-[v1](https://zenodo.org/records/11522276) [v2](https://zenodo.org/records/14597629)
+[v1](https://zenodo.org/records/11522276) [v2](https://zenodo.org/records/14597629) [v2.1](https://zenodo.org/records/15237646)
 - haplotype names separated by semi-colons are shown in first header line preceded by '#'
 - column descriptions:
 
